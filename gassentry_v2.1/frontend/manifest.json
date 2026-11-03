@@ -1,0 +1,16 @@
+{
+  "name": "GasSentry Kademe Takip",
+  "short_name": "GasSentry",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "description": "Doğalgaz kademe aşım tahmin sistemi.",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/306/306764.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

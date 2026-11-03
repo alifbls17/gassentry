@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GasSentry - Doğalgaz Kademe Takip Sistemi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="manifest" href="manifest.json">
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 font-sans min-h-screen flex flex-col items-center justify-center p-4 transition-colors duration-200">
+
+    <div class="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 transition-colors duration-200">
+        
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold tracking-wide">🔥 GasSentry v2.1</h1>
+                <p class="text-blue-100 text-sm mt-1">SQLite Destekli Kademe ve Fatura Tahmin Sistemi</p>
+            </div>
+            <button id="darkModeToggle" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition text-lg">
+                🌙
+            </button>
+        </div>
+
+        <form id="tahminForm" class="p-6 space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">İl Seçiniz</label>
+                <input type="text" id="ilInput" list="ilListesi" placeholder="İl yazın veya seçin (Örn: Çanakkale)" 
+                       class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                
+                <datalist id="ilListesi">
+                    <option value="Adana"><option value="Adıyaman"><option value="Afyonkarahisar"><option value="Ağrı"><option value="Aksaray"><option value="Amasya"><option value="Ankara"><option value="Antalya"><option value="Ardahan"><option value="Artvin"><option value="Aydın"><option value="Balıkesir"><option value="Bartın"><option value="Batman"><option value="Bayburt"><option value="Bilecik"><option value="Bingöl"><option value="Bitlis"><option value="Bolu"><option value="Burdur"><option value="Bursa"><option value="Çanakkale"><option value="Çankırı"><option value="Çorum"><option value="Denizli"><option value="Diyarbakır"><option value="Düzce"><option value="Edirne"><option value="Elazığ"><option value="Erzincan"><option value="Erzurum"><option value="Eskişehir"><option value="Gaziantep"><option value="Giresun"><option value="Gümüşhane"><option value="Hakkari"><option value="Hatay"><option value="Iğdır"><option value="Isparta"><option value="İstanbul"><option value="İzmir"><option value="Kahramanmaraş"><option value="Karabük"><option value="Karaman"><option value="Kars"><option value="Kastamonu"><option value="Kayseri"><option value="Kilis"><option value="Kırıkkale"><option value="Kırklareli"><option value="Kırşehir"><option value="Kocaeli"><option value="Konya"><option value="Kütahya"><option value="Malatya"><option value="Manisa"><option value="Mardin"><option value="Mersin"><option value="Muğla"><option value="Muş"><option value="Nevşehir"><option value="Niğde"><option value="Ordu"><option value="Osmaniye"><option value="Rize"><option value="Sakarya"><option value="Samsun"><option value="Şanlıurfa"><option value="Siirt"><option value="Sinop"><option value="Şırnak"><option value="Sivas"><option value="Tekirdağ"><option value="Tokat"><option value="Trabzon"><option value="Tunceli"><option value="Uşak"><option value="Van"><option value="Yalova"><option value="Yozgat"><option value="Zonguldak">
+                </datalist>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Fatura Ayı</label>
+                <select id="ay" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option value="10">Ekim</option><option value="11">Kasım</option><option value="12">Aralık</option><option value="1">Ocak</option><option value="2">Şubat</option><option value="3">Mart</option><option value="4">Nisan</option><option value="5">Mayıs</option><option value="6">Haziran</option><option value="7">Temmuz</option><option value="8">Ağustos</option><option value="9">Eylül</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Geçen Gün</label>
+                    <input type="number" id="gecen_gun" value="15" min="1" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Kalan Gün</label>
+                    <input type="number" id="kalan_gun" value="15" min="0" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Sayaçtaki Güncel Tüketim (Sm³)</label>
+                <input type="number" step="0.01" id="guncel_tuketim" placeholder="Örn: 24.5" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+            </div>
+
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-lg transition duration-200 shadow-md">
+                Hesapla ve Tahmin Et
+            </button>
+        </form>
+
+        <div id="sonucAlani" class="hidden p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 space-y-3">
+            <div id="durumRozeti" class="inline-block px-3 py-1 rounded-full text-xs font-bold tracking-wide"></div>
+            <p id="sonucMesaj" class="text-sm font-medium text-gray-800 dark:text-gray-200"></p>
+            
+            <div class="grid grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-400 pt-2 border-t border-gray-200 dark:border-gray-700">
+                <div>Aylık Limit: <span id="resmiLimit" class="font-bold text-gray-900 dark:text-white"></span></div>
+                <div>Günlük Ortalamanız: <span id="gunlukOrt" class="font-bold text-gray-900 dark:text-white"></span></div>
+                <div>Tahmini Dönem Sonu: <span id="tahminiSon" class="font-bold text-gray-900 dark:text-white"></span></div>
+                <div>Tahmini Fatura (TL): <span id="tahminiFatura" class="font-bold text-indigo-600 dark:text-indigo-400"></span></div>
+                <div id="onerilenKutu" class="hidden text-blue-600 dark:text-blue-400 font-semibold col-span-2 mt-1">Önerilen Maks. Günlük: <span id="onerilenMaks"></span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 mt-4 p-6 transition-colors duration-200">
+        <h2 class="text-md font-bold text-gray-800 dark:text-white mb-3">📊 Tüketim Analiz Grafiği</h2>
+        <div class="w-full h-48 mb-6">
+            <canvas id="tuketimGrafik"></canvas>
+        </div>
+
+        <div class="flex justify-between items-center mb-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <h2 class="text-md font-bold text-gray-800 dark:text-white">📜 Geçmiş İşlemler (SQLite)</h2>
+            <button id="temizleBtn" class="text-xs text-red-500 hover:underline font-semibold">Temizle</button>
+        </div>
+        <div id="gecmisListesi" class="space-y-2 max-h-48 overflow-y-auto text-xs text-gray-600 dark:text-gray-300">
+            <p class="text-gray-400 text-center py-2">Henüz kayıtlı işlem bulunmuyor.</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+      }
+    </script>
+</body>
+</html>
